@@ -3,7 +3,12 @@ const gl = cnv.getContext('webgl2');
 const width = window.innerWidth * window.devicePixelRatio;
 const height = window.innerHeight * window.devicePixelRatio;
 
-const POSITIONS = [0, 0, 1, 0, 0.5, 1];
+const POSITIONS = [
+  0, 0, 1, 0, 1, 1,
+  0, 0, 1, 1, 0, 1,
+];
+
+let timeLocation = null;
 
 const compileShader = (vertexCode, fragmentCode) => {
   const vertex = gl.createShader(gl.VERTEX_SHADER);
@@ -42,12 +47,17 @@ const initShader = (shader) => {
   const position = gl.getAttribLocation(shader, 'a_position');
   gl.enableVertexAttribArray(position);
   gl.vertexAttribPointer(position, 2, gl.FLOAT, false, 0, 0);
+  const resolutionLocation = gl.getUniformLocation(shader, 'iResolution');
+  gl.uniform2f(resolutionLocation, width, height);
+  timeLocation = gl.getUniformLocation(shader, 'iTime');
 };
 
 const draw = () => {
   gl.clearColor(0, 0, 0, 1);
   gl.clear(gl.COLOR_BUFFER_BIT);
-  gl.drawArrays(gl.TRIANGLES, 0, 3);
+  gl.uniform1f(timeLocation, performance.now() / 1000);
+  gl.drawArrays(gl.TRIANGLES, 0, 6);
+  requestAnimationFrame(draw);
 };
 
 const init = async () => {
